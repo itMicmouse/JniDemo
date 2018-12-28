@@ -132,6 +132,7 @@ void* threadTask(void* args){
     env->CallVoidMethod(context->instance,updateUI);
     delete(context);
     context = 0;
+    _vm->DetachCurrentThread();
     return 0;
 }
 
