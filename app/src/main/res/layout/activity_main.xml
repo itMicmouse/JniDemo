@@ -14,10 +14,10 @@
         android:text="Hello World!" />
 
     <Button
-        android:text="调用JNI"
-        android:onClick="testJni"
         android:layout_width="wrap_content"
-        android:layout_height="wrap_content" />
+        android:layout_height="wrap_content"
+        android:onClick="testJni"
+        android:text="调用JNI" />
 
     <Button
         android:layout_width="wrap_content"
@@ -32,6 +32,14 @@
         android:layout_height="wrap_content"
         android:onClick="testdynamicTest"
         android:text="动态注册"
+        tools:layout_editor_absoluteX="0dp"
+        tools:layout_editor_absoluteY="61dp" />
+
+    <Button
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:onClick="testThread"
+        android:text="native创建线程"
         tools:layout_editor_absoluteX="0dp"
         tools:layout_editor_absoluteY="61dp" />
 

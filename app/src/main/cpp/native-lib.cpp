@@ -1,6 +1,7 @@
 #include <jni.h>
 #include <string>
 #include <android/log.h>
+#include <pthread.h>
 
 //__VA_ARGS__
 #define LogE(...)  __android_log_print(ANDROID_LOG_ERROR,"JNI",__VA_ARGS__);
@@ -82,7 +83,7 @@ Java_com_yangyakun_jnidemo_MainActivity_getBean(JNIEnv *env, jobject instance, j
     //1、获得类的构造方法
     jmethodID constuct = env->GetMethodID(bean2Cls, "<init>", "(I)V");
     //2、调用构造方法 创建对象
-    jobject bean2Obj = env->NewObject(bean2Cls, constuct,89);
+    jobject bean2Obj = env->NewObject(bean2Cls, constuct, 89);
 
     env->CallStaticVoidMethod(classBean, printinfo2, bean2Obj);
 
@@ -90,8 +91,8 @@ Java_com_yangyakun_jnidemo_MainActivity_getBean(JNIEnv *env, jobject instance, j
     env->DeleteLocalRef(bean2Cls);
 
 
-    jfieldID number2 = env->GetFieldID(classBean,"number","I");
-    env->SetIntField(bean,number2,555);
+    jfieldID number2 = env->GetFieldID(classBean, "number", "I");
+    env->SetIntField(bean, number2, 555);
 
     env->ReleaseStringUTFChars(string_, string);
 
@@ -101,34 +102,68 @@ Java_com_yangyakun_jnidemo_MainActivity_getBean(JNIEnv *env, jobject instance, j
 /**
  * 动态注册
  */
-void dynaicTest(){
+void dynaicTest() {
     LogE("动态注册的方法")
 }
 
-void dynaicTestValue(JNIEnv *env, jobject instance,jint jint1){
-    LogE("动态注册的方法传来的参数%d",jint1);
+void dynaicTestValue(JNIEnv *env, jobject instance, jint jint1) {
+    LogE("动态注册的方法传来的参数%d", jint1);
 }
-static const  JNINativeMethod  method[] = {
-        {"dynamicTest","()V",(void*)dynaicTest},
-        {"dynaicTestValue","(I)V",(void*)dynaicTestValue},
+
+struct Context{
+    jobject instance;
 };
-static const char *mClassName = "com/yangyakun/jnidemo/MainActivity";
+
 /**
  * 在System.loadLibrary 调用
  */
 JavaVM *_vm;
-int JNI_OnLoad(JavaVM *vm, void *r){
+
+void* threadTask(void* args){
+    //native 线程 附加到java线程
+    JNIEnv *env;
+    jint result =_vm->AttachCurrentThread(&env,0);
+    if(result!=JNI_OK){
+        return 0;
+    }
+    Context *context = static_cast<Context *>(args);
+    jclass jclass1 =env->GetObjectClass(context->instance);
+    jmethodID updateUI = env->GetMethodID(jclass1,"updateUI","()V");
+    env->CallVoidMethod(context->instance,updateUI);
+    delete(context);
+    context = 0;
+    return 0;
+}
+
+void testThread(JNIEnv *env, jobject instance) {
+    pthread_t pid;
+    Context *context = new Context;
+    context->instance = env->NewGlobalRef(instance);
+
+    pthread_create(&pid,0,threadTask,context);
+
+}
+
+static const JNINativeMethod method[] = {
+        {"dynamicTest",     "()V",  (void *) dynaicTest},
+        {"dynaicTestValue", "(I)V", (void *) dynaicTestValue},
+        {"testThread", "()V", (void *) testThread},
+};
+static const char *mClassName = "com/yangyakun/jnidemo/MainActivity";
+
+
+int JNI_OnLoad(JavaVM *vm, void *r) {
     LogE("调用 JNI_OnLoad");
     _vm = vm;
     //获取JNIENV
-     JNIEnv *env = 0;
-     //re<0 成功 =0 成功
-     int re = vm->GetEnv((void**)&env,JNI_VERSION_1_6);
-     if(re!=JNI_OK){
-         return -1;
-     }
-     jclass jCls = env->FindClass(mClassName);
-     env->RegisterNatives(jCls,method, sizeof(method)/ sizeof(JNINativeMethod));
+    JNIEnv *env = 0;
+    //re<0 成功 =0 成功
+    int re = vm->GetEnv((void **) &env, JNI_VERSION_1_6);
+    if (re != JNI_OK) {
+        return -1;
+    }
+    jclass jCls = env->FindClass(mClassName);
+    env->RegisterNatives(jCls, method, sizeof(method) / sizeof(JNINativeMethod));
     return JNI_VERSION_1_6;
 }
 

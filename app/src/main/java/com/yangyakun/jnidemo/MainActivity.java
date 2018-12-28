@@ -1,5 +1,6 @@
 package com.yangyakun.jnidemo;
 
+import android.os.Looper;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.View;
@@ -49,6 +50,22 @@ public class MainActivity extends AppCompatActivity {
         dynamicTest();
         dynaicTestValue(88);
     }
+    public void testThread(View view){
+        testThread();
+    }
+
+    public void updateUI(){
+        if(Looper.myLooper()==Looper.getMainLooper()){
+            Toast.makeText(this, "更新UI", Toast.LENGTH_SHORT).show();
+        }else {
+            runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    Toast.makeText(MainActivity.this, "更新UI", Toast.LENGTH_SHORT).show();
+                }
+            });
+        }
+    }
 
     /**
      * A native method that is implemented by the 'native-lib' native library,
@@ -61,5 +78,8 @@ public class MainActivity extends AppCompatActivity {
     public native int getBean(Bean bean,String string);
 
     public native void dynamicTest();
+
     public native void dynaicTestValue(int number);
+
+    public native void testThread();
 }
