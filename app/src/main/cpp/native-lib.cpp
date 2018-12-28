@@ -97,3 +97,41 @@ Java_com_yangyakun_jnidemo_MainActivity_getBean(JNIEnv *env, jobject instance, j
 
     return 100;
 }
+
+/**
+ * 动态注册
+ */
+void dynaicTest(){
+    LogE("动态注册的方法")
+}
+
+void dynaicTestValue(JNIEnv *env, jobject instance,jint jint1){
+    LogE("动态注册的方法传来的参数%d",jint1);
+}
+static const  JNINativeMethod  method[] = {
+        {"dynamicTest","()V",(void*)dynaicTest},
+        {"dynaicTestValue","(I)V",(void*)dynaicTestValue},
+};
+static const char *mClassName = "com/yangyakun/jnidemo/MainActivity";
+/**
+ * 在System.loadLibrary 调用
+ */
+JavaVM *_vm;
+int JNI_OnLoad(JavaVM *vm, void *r){
+    LogE("调用 JNI_OnLoad");
+    _vm = vm;
+    //获取JNIENV
+     JNIEnv *env = 0;
+     //re<0 成功 =0 成功
+     int re = vm->GetEnv((void**)&env,JNI_VERSION_1_6);
+     if(re!=JNI_OK){
+         return -1;
+     }
+     jclass jCls = env->FindClass(mClassName);
+     env->RegisterNatives(jCls,method, sizeof(method)/ sizeof(JNINativeMethod));
+    return JNI_VERSION_1_6;
+}
+
+
+
+

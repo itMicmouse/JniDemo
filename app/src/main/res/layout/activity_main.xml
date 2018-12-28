@@ -27,4 +27,12 @@
         tools:layout_editor_absoluteX="0dp"
         tools:layout_editor_absoluteY="61dp" />
 
+    <Button
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:onClick="testdynamicTest"
+        android:text="动态注册"
+        tools:layout_editor_absoluteX="0dp"
+        tools:layout_editor_absoluteY="61dp" />
+
 </LinearLayout>

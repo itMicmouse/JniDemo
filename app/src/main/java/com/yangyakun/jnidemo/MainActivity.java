@@ -45,6 +45,11 @@ public class MainActivity extends AppCompatActivity {
         Toast.makeText(this, "JNI设置的数据"+bean.getNumber(), Toast.LENGTH_SHORT).show();
     }
 
+    public void testdynamicTest(View view){
+        dynamicTest();
+        dynaicTestValue(88);
+    }
+
     /**
      * A native method that is implemented by the 'native-lib' native library,
      * which is packaged with this application.
@@ -54,4 +59,7 @@ public class MainActivity extends AppCompatActivity {
     public native int getNative(int[] number,String[] Strings);
 
     public native int getBean(Bean bean,String string);
+
+    public native void dynamicTest();
+    public native void dynaicTestValue(int number);
 }
